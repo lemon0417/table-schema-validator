@@ -1,18 +1,20 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./temp/data/h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MYSQL
-    driverClassName: org.h2.Driver
-    username: sa
+    url: jdbc:mariadb://localhost:3306/customvalidator
+    driverClassName: org.mariadb.jdbc.Driver
+    username: root
     password: 123456
   jpa:
+    open-in-view: false
     show-sql: true
-    database-platform: org.hibernate.dialect.H2Dialect
+#    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create
-  h2:
-    console:
-      enabled: true
-      path: /h2
-      settings:
-        web-allow-others: true
-        web-admin-password: 123456
+      ddl-auto: none
+
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2
+#      settings:
+#        web-allow-others: true
+#        web-admin-password: 123456

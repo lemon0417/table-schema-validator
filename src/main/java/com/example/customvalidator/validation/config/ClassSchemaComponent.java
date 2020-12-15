@@ -1,4 +1,4 @@
-package com.example.customvalidator.config;
+package com.example.customvalidator.validation.config;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,7 +1,7 @@
-package com.example.customvalidator.validation.validator;
+package com.example.customvalidator.validation;
 
-import com.example.customvalidator.config.ClassSchemaComponent;
-import com.example.customvalidator.config.DatabaseSchemaComponent;
+import com.example.customvalidator.validation.config.ClassSchemaComponent;
+import com.example.customvalidator.validation.config.DatabaseSchemaComponent;
 import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
 import com.example.customvalidator.validation.util.TransformerUtil;

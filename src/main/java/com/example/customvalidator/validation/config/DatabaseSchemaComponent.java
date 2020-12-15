@@ -1,4 +1,4 @@
-package com.example.customvalidator.config;
+package com.example.customvalidator.validation.config;
 
 import com.example.customvalidator.validation.util.TransformerUtil;
 import com.example.customvalidator.validation.vo.ColumnInfo;

@@ -1,6 +1,6 @@
 package com.example.customvalidator.validation.annotation;
 
-import com.example.customvalidator.validation.validator.TableSchemaValidator;
+import com.example.customvalidator.validation.TableSchemaValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

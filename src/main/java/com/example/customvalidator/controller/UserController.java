@@ -1,7 +1,7 @@
 package com.example.customvalidator.controller;
 
-import com.example.customvalidator.config.ClassSchemaComponent;
-import com.example.customvalidator.config.DatabaseSchemaComponent;
+import com.example.customvalidator.validation.config.ClassSchemaComponent;
+import com.example.customvalidator.validation.config.DatabaseSchemaComponent;
 import com.example.customvalidator.data.entity.User;
 import com.example.customvalidator.data.repository.UserRepository;
 import com.example.customvalidator.data.vo.UserVo;

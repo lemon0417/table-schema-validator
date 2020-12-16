@@ -6,8 +6,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 
 @ValidTable
 @Getter
@@ -25,12 +23,11 @@ public class User {
     @Column(length = 10)
     private String name;
 
-    @Min(1)
-    @Max(120)
-    @ValidColumn(message = "xxxxxxx", defaultValue = "1")
+    @ValidColumn(message = "xxxxxxx", defaultValue = "1", min = 1, max = 120)
     private Integer age;
 
     @Email
+    @ValidColumn(min = 5)
     private String email;
 
     @ValidColumn(message = "AA")

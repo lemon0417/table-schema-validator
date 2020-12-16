@@ -76,10 +76,31 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
             }
 
             if (obj != null) {
+                long min = annotation.min();
+                long max = annotation.max();
+                if (min > max) {
+                    throw new IllegalArgumentException();
+                }
+
                 if (obj instanceof String) {
-                    currentResult = ((String) obj).length() <= info.getColumnSize();
+                    min = min > 0 ? min : 0;
+                    max = max > info.getColumnSize() ? info.getColumnSize() : max;
+                    String temp = (String) obj;
+                    currentResult = (temp.length() <= max) && (temp.length() >= min);
                 } else if (obj instanceof Number) {
                     currentResult = String.valueOf(obj).length() <= info.getColumnSize();
+
+                    if (obj instanceof Integer) {
+                        min = min > Integer.MIN_VALUE ? min : Integer.MIN_VALUE;
+                        max = max < Integer.MAX_VALUE ? max : Integer.MAX_VALUE;
+                        int temp = (int) obj;
+                        currentResult &= temp >= min && temp <= max;
+                    } else if (obj instanceof Long) {
+                        min = Math.max(min, Long.MIN_VALUE);
+                        max = Math.min(max, Long.MAX_VALUE);
+                        long temp = (long) obj;
+                        currentResult &= (temp >= min) && (temp <= max);
+                    }
                 }
             }
 

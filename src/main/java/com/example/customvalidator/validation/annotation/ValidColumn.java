@@ -21,4 +21,8 @@ public @interface ValidColumn {
     String targetColumn() default "";
 
     String defaultValue() default "";
+
+    long min() default Long.MIN_VALUE;
+
+    long max() default Long.MAX_VALUE;
 }

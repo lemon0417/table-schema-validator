@@ -6,8 +6,6 @@ import com.example.customvalidator.validation.annotation.ValidTable;
 import lombok.*;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 
 @ValidTable(name = User.class)
 @Getter
@@ -21,8 +19,6 @@ public class UserVo {
     @ValidColumn(defaultValue = "name")
     private String name;
 
-    @Min(1)
-    @Max(120)
     @ValidColumn(message = "xxxxxxx", defaultValue = "1")
     private Integer age;
 

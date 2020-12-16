@@ -1,20 +1,8 @@
 package com.example.customvalidator.validation.util;
 
-import javax.persistence.Table;
 import java.util.Locale;
 
 public class TransformerUtil {
-
-    public static String toTableName(Class<?> clazz) {
-        String name;
-        if (clazz.isAnnotationPresent(Table.class) && clazz.getAnnotation(Table.class).name().length() > 0) {
-            name = clazz.getAnnotation(Table.class).name();
-        } else {
-            name = toUnderscoreNaming(clazz.getSimpleName());
-        }
-        return name;
-    }
-
     public static String toUnderscoreNaming(String source) {
         StringBuilder builder = new StringBuilder(source.replace('.', '_'));
         for (int i = 1; i < builder.length() - 1; i++) {
@@ -32,7 +20,7 @@ public class TransformerUtil {
         } else if (!source.contains("_")) {
             return source.substring(0, 1).toUpperCase() + source.substring(1);
         }
-        String camels[] = source.split("_");
+        String[] camels = source.split("_");
         for (String camel : camels) {
             if (camel.isEmpty()) {
                 continue;

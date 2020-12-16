@@ -1,5 +1,6 @@
 package com.example.customvalidator.data.vo;
 
+import com.example.customvalidator.data.entity.User;
 import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
 import lombok.*;
@@ -8,7 +9,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
-@ValidTable(name = "User")
+@ValidTable(name = User.class)
 @Getter
 @Setter
 @NoArgsConstructor

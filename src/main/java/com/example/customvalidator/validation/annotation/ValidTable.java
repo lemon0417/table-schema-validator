@@ -20,5 +20,5 @@ public @interface ValidTable {
 
     Class<? extends Payload>[] payload() default {};
 
-    String name() default "";
+    Class name() default void.class;
 }

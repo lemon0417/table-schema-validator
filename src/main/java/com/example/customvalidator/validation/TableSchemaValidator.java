@@ -1,9 +1,9 @@
 package com.example.customvalidator.validation;
 
-import com.example.customvalidator.validation.config.ClassSchemaComponent;
-import com.example.customvalidator.validation.config.DatabaseSchemaComponent;
 import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
+import com.example.customvalidator.validation.config.ClassSchemaComponent;
+import com.example.customvalidator.validation.config.DatabaseSchemaComponent;
 import com.example.customvalidator.validation.util.TransformerUtil;
 import com.example.customvalidator.validation.vo.ColumnInfo;
 import org.springframework.util.Assert;
@@ -25,16 +25,16 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
     public boolean isValid(Object vo, ConstraintValidatorContext context) {
         boolean result = true;
         Class<?> clazz = vo.getClass();
-        String tableName = TransformerUtil.toTableName(clazz);
-        String key = clazz.isAnnotationPresent(Entity.class)
-                ? tableName
+        Class<?> targetEntity = clazz.isAnnotationPresent(Entity.class)
+                ? clazz
                 : (
-                clazz.isAnnotationPresent(ValidTable.class)
-                        ? TransformerUtil.toUnderscoreNaming(clazz.getAnnotation(ValidTable.class).name())
-                        : ""
+                (clazz.isAnnotationPresent(ValidTable.class)
+                        && !clazz.getAnnotation(ValidTable.class).name().equals(Void.TYPE))
+                        ? clazz.getAnnotation(ValidTable.class).name()
+                        : null
         );
 
-        Field[] fields = ClassSchemaComponent.getFields(tableName, clazz);
+        Field[] fields = ClassSchemaComponent.getFields(clazz.getName(), clazz);
         for (Field field : fields) {
             if (!field.isAnnotationPresent(ValidColumn.class)) {
                 continue;
@@ -42,18 +42,17 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
 
             boolean currentResult = true;
             field.setAccessible(true);
-            ValidColumn annotation = field.getAnnotation(ValidColumn.class);
+            ValidColumn annotation = field.getDeclaredAnnotation(ValidColumn.class);
             String columnName = TransformerUtil.toUnderscoreNaming(
                     StringUtils.hasText(annotation.targetColumn())
                             ? annotation.targetColumn()
                             : field.getName()
             );
 
-            if (annotation.targetEntity().length() > 0) {
-                key = TransformerUtil.toUnderscoreNaming(annotation.targetEntity());
-            }
+            Class<?> currentTargetEntity = annotation.targetEntity().equals(Void.TYPE)
+                    ? targetEntity : annotation.targetEntity();
 
-            ColumnInfo info = DatabaseSchemaComponent.getColumnInfo(key, columnName);
+            ColumnInfo info = DatabaseSchemaComponent.getColumnInfo(currentTargetEntity, columnName);
             Class<?> dataType = info.getDataType();
             Assert.isTrue(dataType.isAssignableFrom(field.getType()),
                     "Column[" + field.getName() + "] and schema[" + columnName + "] type is mismatch");
@@ -86,7 +85,7 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
 
             result &= currentResult;
             if (!currentResult) {
-                String message = getMessage(key, field, annotation);
+                String message = getMessage(currentTargetEntity.getSimpleName(), field, annotation.message());
                 context.buildConstraintViolationWithTemplate(message)
                         .addPropertyNode(field.getName())
                         .addConstraintViolation()
@@ -96,10 +95,10 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
         return result;
     }
 
-    private String getMessage(String key, Field field, ValidColumn annotation) {
-        String message = annotation.message().length() > 0
-                ? annotation.message()
-                : MESSAGE_HEADER + TransformerUtil.toUpperCamelCaseNaming(key) + "." + field.getName();
+    private String getMessage(String key, Field field, String customMessage) {
+        String message = customMessage.length() > 0
+                ? customMessage
+                : MESSAGE_HEADER + key + "." + field.getName();
         if (!message.startsWith("{")) message = "{" + message;
         if (!message.endsWith("}")) message = message + "}";
         return message;

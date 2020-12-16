@@ -16,7 +16,7 @@ public @interface ValidColumn {
 
     Class<? extends Payload>[] payload() default {};
 
-    String targetEntity() default "";
+    Class targetEntity() default void.class;
 
     String targetColumn() default "";
 

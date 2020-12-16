@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.persistence.Table;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -72,12 +73,23 @@ public class DatabaseSchemaComponent {
         return str == null ? DEFAULT_STRING : str.trim();
     }
 
-    public static ColumnInfo getColumnInfo(String key, String columnName) {
-        String tableName = TransformerUtil.toUnderscoreNaming(key);
+    public static ColumnInfo getColumnInfo(Class targetEntity, String columnName) {
+        String tableName = toTableName(targetEntity);
         Map<String, ColumnInfo> table = DATABASE_SCHEMA_CACHE.get(tableName);
         Assert.notNull(table, tableName + " is not a valid table.");
         ColumnInfo column = table.get(columnName);
         Assert.notNull(column, columnName + " is not a valid column in [" + tableName + "].");
         return column;
+    }
+
+
+    private static String toTableName(Class<?> clazz) {
+        String name;
+        if (clazz.isAnnotationPresent(Table.class) && clazz.getAnnotation(Table.class).name().length() > 0) {
+            name = clazz.getAnnotation(Table.class).name();
+        } else {
+            name = TransformerUtil.toUnderscoreNaming(clazz.getSimpleName());
+        }
+        return name;
     }
 }

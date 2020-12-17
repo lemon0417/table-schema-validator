@@ -3,10 +3,6 @@ package com.example.customvalidator.controller;
 import com.example.customvalidator.data.bo.UserBO;
 import com.example.customvalidator.data.entity.User;
 import com.example.customvalidator.data.repository.UserRepository;
-import com.example.customvalidator.validation.config.ClazzSchemaComponent;
-import com.example.customvalidator.validation.config.DatabaseSchemaComponent;
-import com.example.customvalidator.validation.vo.ColumnInfo;
-import com.example.customvalidator.validation.vo.FieldInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 @Api(tags = "使用者")
 @RequestMapping("/user")
@@ -64,17 +58,5 @@ public class UserController {
                         .email(user.getEmail())
                         .build()
         );
-    }
-
-    @ApiOperation(value = "dbSchema")
-    @GetMapping("dbSchema")
-    public Map<String, Map<String, ColumnInfo>> getDataBaseSchema() {
-        return DatabaseSchemaComponent.getDataBaseSchema();
-    }
-
-    @ApiOperation(value = "classSchema")
-    @GetMapping("classSchema")
-    public ConcurrentMap<Class<?>, List<FieldInfo>> getClassSchema() {
-        return ClazzSchemaComponent.getClassSchema();
     }
 }

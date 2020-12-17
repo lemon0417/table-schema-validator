@@ -19,7 +19,7 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
     @Override
     public boolean isValid(Object vo, ConstraintValidatorContext context) {
         boolean result = true;
-        List<FieldInfo> fieldInfos = ClazzSchemaComponent.getFields(vo.getClass());
+        List<FieldInfo> fieldInfos = ClazzSchemaComponent.findByClazz(vo.getClass());
         for (FieldInfo fieldInfo : fieldInfos) {
             boolean currentResult = true;
             Field field = fieldInfo.getField();

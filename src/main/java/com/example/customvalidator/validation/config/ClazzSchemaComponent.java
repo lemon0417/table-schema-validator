@@ -4,6 +4,7 @@ import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
 import com.example.customvalidator.validation.vo.ColumnInfo;
 import com.example.customvalidator.validation.vo.FieldInfo;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.Entity;
@@ -15,11 +16,16 @@ import java.util.concurrent.ConcurrentMap;
 
 import static com.google.common.base.CaseFormat.*;
 
+@Component
 public class ClazzSchemaComponent {
     private static final String MESSAGE_HEADER = "game.";
     private static final ConcurrentMap<Class<?>, List<FieldInfo>> CACHE = new ConcurrentHashMap<>();
 
-    public static List<FieldInfo> getFields(Class<?> clazz) {
+    public ConcurrentMap<Class<?>, List<FieldInfo>> findAll() {
+        return CACHE;
+    }
+
+    public static List<FieldInfo> findByClazz(Class<?> clazz) {
         List<FieldInfo> fields = CACHE.get(clazz);
         if (fields != null) return fields;
         synchronized (clazz) {
@@ -30,7 +36,11 @@ public class ClazzSchemaComponent {
         return fields;
     }
 
-    private static List<FieldInfo> findDetails(Class<?> clazz) {
+    public void clear() {
+        CACHE.clear();
+    }
+
+    public static List<FieldInfo> findDetails(Class<?> clazz) {
         List<FieldInfo> list = new ArrayList<>();
 
         Class<?> targetEntity = clazz.isAnnotationPresent(Entity.class)

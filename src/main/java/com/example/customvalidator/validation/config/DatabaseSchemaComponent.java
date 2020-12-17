@@ -20,23 +20,24 @@ import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 
 @Component
 public class DatabaseSchemaComponent {
-    private static final Map<String, Map<String, ColumnInfo>> DATABASE_SCHEMA_CACHE = new HashMap<>();
+    private static final Map<String, Map<String, ColumnInfo>> CACHE = new HashMap<>();
 
     public static Map<String, Map<String, ColumnInfo>> getDataBaseSchema() {
-        return DATABASE_SCHEMA_CACHE;
+        return CACHE;
     }
 
     @Bean
     public Map<String, Map<String, ColumnInfo>> databaseSchema(List<DataSource> dataSources) {
+        CACHE.clear();
         for (DataSource dataSource : dataSources) {
             try {
                 Map<String, Map<String, ColumnInfo>> result = getMetaData(dataSource);
-                DATABASE_SCHEMA_CACHE.putAll(result);
+                CACHE.putAll(result);
             } catch (MetaDataAccessException e) {
                 e.printStackTrace();
             }
         }
-        return DATABASE_SCHEMA_CACHE;
+        return CACHE;
     }
 
     private Map<String, Map<String, ColumnInfo>> getMetaData(DataSource dataSource) throws MetaDataAccessException {
@@ -75,7 +76,7 @@ public class DatabaseSchemaComponent {
 
     public static ColumnInfo getColumnInfo(Class<?> targetEntity, String columnName) {
         String tableName = toTableName(targetEntity);
-        Map<String, ColumnInfo> table = DATABASE_SCHEMA_CACHE.get(tableName);
+        Map<String, ColumnInfo> table = CACHE.get(tableName);
         Assert.notNull(table, tableName + " is not a valid table.");
         ColumnInfo column = table.get(columnName);
         Assert.notNull(column, columnName + " is not a valid column in [" + tableName + "].");

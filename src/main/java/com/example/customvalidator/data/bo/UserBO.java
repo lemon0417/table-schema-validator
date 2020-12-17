@@ -1,34 +1,30 @@
-package com.example.customvalidator.data.entity;
+package com.example.customvalidator.data.bo;
 
+import com.example.customvalidator.data.entity.User;
 import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
 import lombok.*;
 
-import javax.persistence.*;
 import javax.validation.constraints.Email;
 
-@ValidTable
+@ValidTable(name = User.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class UserBO {
     private Integer id;
 
-    @ValidColumn(defaultValue = "user")
-    @Column(length = 10)
+    @ValidColumn(defaultValue = "name")
     private String name;
 
     @ValidColumn(message = "xxxxxxx", defaultValue = "1", min = 1)
     private Integer age;
 
     @Email
-    @ValidColumn(min = 5)
     private String email;
 
+    @ValidColumn(message = "AA")
     private String address;
 }

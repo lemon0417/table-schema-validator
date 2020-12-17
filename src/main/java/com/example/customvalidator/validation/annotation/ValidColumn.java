@@ -16,13 +16,11 @@ public @interface ValidColumn {
 
     Class<? extends Payload>[] payload() default {};
 
-    Class targetEntity() default void.class;
+    Class<?> targetEntity() default void.class;
 
     String targetColumn() default "";
 
     String defaultValue() default "";
 
-    long min() default Long.MIN_VALUE;
-
-    long max() default Long.MAX_VALUE;
+    long min() default 0;
 }

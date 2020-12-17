@@ -1,14 +1,14 @@
 package com.example.customvalidator.validation.vo;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@Builder
-@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class ColumnInfo {
     private Class<?> dataType;
     private Integer columnSize;

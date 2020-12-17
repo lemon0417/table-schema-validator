@@ -1,11 +1,9 @@
-package com.example.customvalidator.data.vo;
+package com.example.customvalidator.data.bo;
 
 import com.example.customvalidator.data.entity.User;
 import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
 import lombok.*;
-
-import javax.validation.constraints.Email;
 
 @ValidTable(name = User.class)
 @Getter
@@ -13,7 +11,7 @@ import javax.validation.constraints.Email;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserVo {
+public class UserSimpleBO {
     private Integer id;
 
     @ValidColumn(defaultValue = "name")
@@ -21,10 +19,4 @@ public class UserVo {
 
     @ValidColumn(message = "xxxxxxx", defaultValue = "1")
     private Integer age;
-
-    @Email
-    private String email;
-
-    @ValidColumn(message = "AA")
-    private String address;
 }

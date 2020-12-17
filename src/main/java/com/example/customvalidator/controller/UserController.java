@@ -1,11 +1,12 @@
 package com.example.customvalidator.controller;
 
-import com.example.customvalidator.validation.config.ClassSchemaComponent;
-import com.example.customvalidator.validation.config.DatabaseSchemaComponent;
+import com.example.customvalidator.data.bo.UserBO;
 import com.example.customvalidator.data.entity.User;
 import com.example.customvalidator.data.repository.UserRepository;
-import com.example.customvalidator.data.vo.UserVo;
+import com.example.customvalidator.validation.config.ClazzSchemaComponent;
+import com.example.customvalidator.validation.config.DatabaseSchemaComponent;
 import com.example.customvalidator.validation.vo.ColumnInfo;
+import com.example.customvalidator.validation.vo.FieldInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 @Api(tags = "使用者")
 @RequestMapping("/user")
@@ -54,7 +55,7 @@ public class UserController {
     @ApiOperation(value = "新增使用者2(for vo)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("add/test2")
-    public void add2(@Valid @RequestBody UserVo user) {
+    public void add2(@Valid @RequestBody UserBO user) {
         repo.save(
                 User.builder()
                         .name(user.getName())
@@ -73,7 +74,7 @@ public class UserController {
 
     @ApiOperation(value = "classSchema")
     @GetMapping("classSchema")
-    public Map<String, Field[]> getClassSchema() {
-        return ClassSchemaComponent.getClassSchema();
+    public ConcurrentMap<Class<?>, List<FieldInfo>> getClassSchema() {
+        return ClazzSchemaComponent.getClassSchema();
     }
 }

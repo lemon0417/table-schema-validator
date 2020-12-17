@@ -1,6 +1,5 @@
 package com.example.customvalidator.validation.config;
 
-import com.example.customvalidator.validation.util.TransformerUtil;
 import com.example.customvalidator.validation.vo.ColumnInfo;
 import org.hibernate.type.descriptor.sql.JdbcTypeJavaClassMappings;
 import org.springframework.context.annotation.Bean;
@@ -16,9 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
+import static com.google.common.base.CaseFormat.UPPER_CAMEL;
+
 @Component
 public class DatabaseSchemaComponent {
-    private static Map<String, Map<String, ColumnInfo>> DATABASE_SCHEMA_CACHE;
+    private static final Map<String, Map<String, ColumnInfo>> DATABASE_SCHEMA_CACHE = new HashMap<>();
 
     public static Map<String, Map<String, ColumnInfo>> getDataBaseSchema() {
         return DATABASE_SCHEMA_CACHE;
@@ -26,17 +28,15 @@ public class DatabaseSchemaComponent {
 
     @Bean
     public Map<String, Map<String, ColumnInfo>> databaseSchema(List<DataSource> dataSources) {
-        Map<String, Map<String, ColumnInfo>> map = new HashMap<>();
         for (DataSource dataSource : dataSources) {
             try {
                 Map<String, Map<String, ColumnInfo>> result = getMetaData(dataSource);
-                map.putAll(result);
+                DATABASE_SCHEMA_CACHE.putAll(result);
             } catch (MetaDataAccessException e) {
                 e.printStackTrace();
             }
         }
-        DATABASE_SCHEMA_CACHE = map;
-        return map;
+        return DATABASE_SCHEMA_CACHE;
     }
 
     private Map<String, Map<String, ColumnInfo>> getMetaData(DataSource dataSource) throws MetaDataAccessException {
@@ -47,12 +47,12 @@ public class DatabaseSchemaComponent {
                     while (rs.next()) {
                         Class<?> dataType = JdbcTypeJavaClassMappings.INSTANCE.determineJavaClassForJdbcTypeCode(rs.getInt("DATA_TYPE"));
                         boolean nullable = rs.getInt("NULLABLE") == 1;
-                        ColumnInfo info = ColumnInfo.builder()
-                                .dataType(dataType)
-                                .columnSize(rs.getInt("COLUMN_SIZE"))
-                                .columnDef(trimToDefault(rs.getString("COLUMN_DEF"), nullable))
-                                .nullable(nullable)
-                                .build();
+                        ColumnInfo info = new ColumnInfo(
+                                dataType
+                                , rs.getInt("COLUMN_SIZE")
+                                , trimToDefault(rs.getString("COLUMN_DEF"), nullable)
+                                , nullable
+                        );
 
                         String tableName = rs.getString("TABLE_NAME");
                         String columnName = rs.getString("COLUMN_NAME");
@@ -73,7 +73,7 @@ public class DatabaseSchemaComponent {
         return str == null ? DEFAULT_STRING : str.trim();
     }
 
-    public static ColumnInfo getColumnInfo(Class targetEntity, String columnName) {
+    public static ColumnInfo getColumnInfo(Class<?> targetEntity, String columnName) {
         String tableName = toTableName(targetEntity);
         Map<String, ColumnInfo> table = DATABASE_SCHEMA_CACHE.get(tableName);
         Assert.notNull(table, tableName + " is not a valid table.");
@@ -82,13 +82,13 @@ public class DatabaseSchemaComponent {
         return column;
     }
 
-
     private static String toTableName(Class<?> clazz) {
         String name;
-        if (clazz.isAnnotationPresent(Table.class) && clazz.getAnnotation(Table.class).name().length() > 0) {
-            name = clazz.getAnnotation(Table.class).name();
+        Table table = clazz.getAnnotation(Table.class);
+        if (table != null && !table.name().isEmpty()) {
+            name = table.name().replaceAll("`", "");
         } else {
-            name = TransformerUtil.toUnderscoreNaming(clazz.getSimpleName());
+            name = UPPER_CAMEL.to(LOWER_UNDERSCORE, clazz.getSimpleName());
         }
         return name;
     }

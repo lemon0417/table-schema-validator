@@ -1,7 +1,7 @@
 package com.example.customvalidator.validation;
 
 import com.example.customvalidator.validation.annotation.ValidTable;
-import com.example.customvalidator.validation.config.ClazzSchemaComponent;
+import com.example.customvalidator.validation.service.ClazzSchemaAware;
 import com.example.customvalidator.validation.vo.ColumnInfo;
 import com.example.customvalidator.validation.vo.FieldInfo;
 import org.springframework.util.NumberUtils;
@@ -19,26 +19,26 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
     @Override
     public boolean isValid(Object vo, ConstraintValidatorContext context) {
         boolean result = true;
-        List<FieldInfo> fieldInfos = ClazzSchemaComponent.findByClazz(vo.getClass());
+        List<FieldInfo> fieldInfos = ClazzSchemaAware.get(vo.getClass());
         for (FieldInfo fieldInfo : fieldInfos) {
             boolean currentResult = true;
             Field field = fieldInfo.getField();
             ColumnInfo info = fieldInfo.getColumnInfo();
 
             Object obj = null;
+            Class<?> dataType = info.getDataType();
             try {
                 // set default value
                 obj = field.get(vo);
                 if (obj == null && !info.getNullable()) {
-                    Class<?> dataType = info.getDataType();
                     String defaultValue = fieldInfo.getDefaultValue();
                     if (Number.class.isAssignableFrom(dataType)) {
-                        Number number = NumberUtils.parseNumber(0 + defaultValue, dataType.asSubclass(Number.class));
-                        field.set(vo, number);
+                        field.set(vo, NumberUtils.parseNumber(0 + defaultValue, dataType.asSubclass(Number.class)));
                     } else {
                         field.set(vo, dataType.cast(defaultValue));
                     }
-                    obj = field.get(vo);
+                    // no need to check
+                    continue;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -55,13 +55,7 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
                     String temp = (String) obj;
                     currentResult = (temp.length() <= columnSize) && (temp.length() >= min);
                 } else if (obj instanceof Number) {
-                    currentResult = String.valueOf(obj).length() <= columnSize;
-
-                    if (obj instanceof Integer) {
-                        currentResult &= ((int) obj) >= min;
-                    } else if (obj instanceof Long) {
-                        currentResult &= ((long) obj) >= min;
-                    }
+                    currentResult = (String.valueOf(obj).length() <= columnSize) && (((long) obj) >= min);
                 }
             }
 

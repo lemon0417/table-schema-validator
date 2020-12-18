@@ -16,7 +16,7 @@ public class FieldInfo {
     private String columnName;
     private String message;
     private String defaultValue;
-    private Class<?> targetEntity;
+    private String targetTable;
     private ColumnInfo columnInfo;
     private long min;
 }

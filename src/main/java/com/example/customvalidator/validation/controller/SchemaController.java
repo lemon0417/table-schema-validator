@@ -1,7 +1,7 @@
-package com.example.customvalidator.validation;
+package com.example.customvalidator.validation.controller;
 
-import com.example.customvalidator.validation.config.ClazzSchemaComponent;
-import com.example.customvalidator.validation.config.DatabaseSchemaComponent;
+import com.example.customvalidator.validation.service.ClazzSchemaAware;
+import com.example.customvalidator.validation.service.DatabaseSchemaAware;
 import com.example.customvalidator.validation.service.SchemaService;
 import com.example.customvalidator.validation.vo.ColumnInfo;
 import com.example.customvalidator.validation.vo.FieldInfo;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-@Api(tags = "資料表結構")
+@Api(tags = "欄位結構")
 @RequestMapping("/schema")
 @RestController
 public class SchemaController {
@@ -25,13 +25,13 @@ public class SchemaController {
     @ApiOperation(value = "dbSchema")
     @GetMapping("dbSchema")
     public Map<String, Map<String, ColumnInfo>> getDataBaseSchema() {
-        return DatabaseSchemaComponent.getDataBaseSchema();
+        return DatabaseSchemaAware.get();
     }
 
     @ApiOperation(value = "classSchema")
     @GetMapping("classSchema")
     public ConcurrentMap<Class<?>, List<FieldInfo>> getClassSchema() {
-        return ClazzSchemaComponent.getClassSchema();
+        return ClazzSchemaAware.get();
     }
 
     @ApiOperation("更新")

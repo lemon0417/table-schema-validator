@@ -5,17 +5,19 @@ import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
 import lombok.*;
 
-@ValidTable(name = TableMapping.USER)
+@ValidTable(name = TableMapping.KNOWLEDGE)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSimpleBO {
-    private Integer id;
+public class KnowledgeBO {
+    private Long id;
 
-    @ValidColumn(defaultValue = "name")
+    private Long category;
+
+    @ValidColumn(min = 1)
     private String name;
 
-    @ValidColumn(message = "xxxxxxx", defaultValue = "1")
-    private Integer age;
+    @ValidColumn(min = 5)
+    private String rule;
 }

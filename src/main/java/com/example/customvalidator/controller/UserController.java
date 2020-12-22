@@ -21,7 +21,7 @@ public class UserController {
 
     @ApiOperation(value = "查詢所有使用者")
     @GetMapping("/all")
-    public List<User> getUsers() {
+    public List<User> findAll() {
         return repo.findAll();
     }
 
@@ -37,26 +37,26 @@ public class UserController {
     @PostMapping("add/test1")
     public void add(@Valid @RequestBody User user) {
         repo.save(
-                User.builder()
-                        .name(user.getName())
-                        .age(user.getAge())
-                        .address(user.getAddress())
-                        .email(user.getEmail())
-                        .build()
+                new User(null
+                        , user.getName()
+                        , user.getAge()
+                        , user.getAddress()
+                        , user.getEmail()
+                )
         );
     }
 
     @ApiOperation(value = "新增使用者2(for vo)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping("add/test2")
-    public void add2(@Valid @RequestBody UserBO user) {
+    public void add2(@Valid @RequestBody UserBO bo) {
         repo.save(
-                User.builder()
-                        .name(user.getName())
-                        .age(user.getAge())
-                        .address(user.getAddress())
-                        .email(user.getEmail())
-                        .build()
+                new User(null
+                        , bo.getName()
+                        , bo.getAge()
+                        , bo.getAddress()
+                        , bo.getEmail()
+                )
         );
     }
 }

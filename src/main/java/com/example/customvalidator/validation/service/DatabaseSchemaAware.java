@@ -12,9 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class DatabaseSchemaAware {
     private static final Map<String, Map<String, ColumnInfo>> CACHE = new HashMap<>();
-    private static final String[] EXCLUDES_PREFIX = new String[]{
+    private static final String[] EXCLUDE_COLUMN_PREFIX = new String[]{
             "QRTZ_"
     };
 
@@ -25,7 +26,9 @@ public class DatabaseSchemaAware {
     public static void refresh(List<DataSource> dataSources) {
         for (DataSource dataSource : dataSources) {
             try {
-                parse(dataSource);
+                synchronized (dataSource) {
+                    parse(dataSource);
+                }
             } catch (MetaDataAccessException e) {
                 e.printStackTrace();
             }
@@ -39,7 +42,6 @@ public class DatabaseSchemaAware {
                 databaseMetaData -> {
                     ResultSet rs = databaseMetaData.getColumns(null, null, "%", null);
                     while (rs.next()) {
-                        String tableName = rs.getString("TABLE_NAME");
                         String columnName = rs.getString("COLUMN_NAME");
                         if (checkExclude(columnName)) continue;
 
@@ -51,6 +53,7 @@ public class DatabaseSchemaAware {
                                 , trimToDefault(rs.getString("COLUMN_DEF"), nullable)
                                 , nullable
                         );
+                        String tableName = rs.getString("TABLE_NAME");
                         Map<String, ColumnInfo> tableInfo = CACHE.getOrDefault(tableName, new HashMap<>());
                         tableInfo.put(columnName, info);
                         CACHE.put(tableName, tableInfo);
@@ -62,9 +65,7 @@ public class DatabaseSchemaAware {
     public static ColumnInfo getColumnInfo(String tableName, String columnName) {
         Map<String, ColumnInfo> table = CACHE.get(tableName);
         Assert.notNull(table, tableName + " is not a valid table.");
-        ColumnInfo column = table.get(columnName);
-        Assert.notNull(column, columnName + " is not a valid column in [" + tableName + "].");
-        return column;
+        return table.get(columnName);
     }
 
     private static String trimToDefault(String str, boolean nullable) {
@@ -76,8 +77,8 @@ public class DatabaseSchemaAware {
     }
 
     private static boolean checkExclude(String columnName) {
-        for (String prefix : EXCLUDES_PREFIX) {
-            if (columnName.startsWith(prefix))
+        for (String rule : EXCLUDE_COLUMN_PREFIX) {
+            if (columnName.startsWith(rule))
                 return true;
         }
         return false;

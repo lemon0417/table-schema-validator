@@ -30,7 +30,7 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
             try {
                 // set default value
                 obj = field.get(vo);
-                if (obj == null && !info.getNullable()) {
+                if ((obj == null || obj.toString().isBlank()) && !info.getNullable()) {
                     String defaultValue = fieldInfo.getDefaultValue();
                     if (Number.class.isAssignableFrom(dataType)) {
                         field.set(vo, NumberUtils.parseNumber(0 + defaultValue, dataType.asSubclass(Number.class)));
@@ -55,7 +55,7 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
                     String temp = (String) obj;
                     currentResult = (temp.length() <= columnSize) && (temp.length() >= min);
                 } else if (obj instanceof Number) {
-                    currentResult = (String.valueOf(obj).length() <= columnSize) && (((long) obj) >= min);
+                    currentResult = (String.valueOf(obj).length() <= columnSize) && (Long.parseLong(obj.toString()) >= min);
                 }
             }
 

@@ -54,7 +54,7 @@ public class ClazzSchemaAware {
         for (Field field : clazz.getDeclaredFields()) {
             field.setAccessible(true);
             ValidColumn annotation = field.getAnnotation(ValidColumn.class);
-            if (!annotation.targetTable().isEmpty()) {
+            if (annotation != null && !annotation.targetTable().isEmpty()) {
                 targetTable = annotation.targetTable();
             }
             String columnName = getColumnName(field, annotation);

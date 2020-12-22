@@ -1,18 +1,21 @@
 package com.example.customvalidator.data.entity;
 
+import com.example.customvalidator.constant.TableMapping;
 import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 
-@ValidTable
+@ValidTable(name = TableMapping.USER)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
 public class User {
     @Id

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-@Api(tags = "欄位結構")
+@Api(tags = "Table & Class結構")
 @RequestMapping("/schema")
 @RestController
 public class SchemaController {

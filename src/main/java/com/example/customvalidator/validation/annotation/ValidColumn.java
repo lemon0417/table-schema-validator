@@ -22,5 +22,7 @@ public @interface ValidColumn {
 
     String defaultValue() default "";
 
+    boolean empty() default true;
+
     long min() default 0;
 }

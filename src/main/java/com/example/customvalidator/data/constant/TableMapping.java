@@ -1,4 +1,4 @@
-package com.example.customvalidator.constant;
+package com.example.customvalidator.data.constant;
 
 public abstract class TableMapping {
     public static final String USER = "user";

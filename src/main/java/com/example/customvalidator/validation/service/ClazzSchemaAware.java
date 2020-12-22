@@ -55,7 +55,7 @@ public class ClazzSchemaAware {
             field.setAccessible(true);
             ValidColumn annotation = field.getAnnotation(ValidColumn.class);
             if (annotation != null && !annotation.targetTable().isEmpty()) {
-                targetTable = annotation.targetTable();
+                targetTable = annotation.targetTable().replaceAll("`", "");
             }
             String columnName = getColumnName(field, annotation);
             ColumnInfo columnInfo = DatabaseSchemaAware.getColumnInfo(targetTable, columnName);
@@ -84,6 +84,7 @@ public class ClazzSchemaAware {
                     , getDefaultValue(columnInfo, annotation)
                     , targetTable
                     , columnInfo
+                    , (annotation == null || annotation.empty())
                     , min
             );
             list.add(info);
@@ -102,10 +103,13 @@ public class ClazzSchemaAware {
         if (annotation != null && !annotation.message().isEmpty()) {
             return annotation.message();
         }
-        StringBuilder builder = new StringBuilder(MESSAGE_HEADER);
-        builder.append(UPPER_CAMEL.to(LOWER_CAMEL, targetTable))
+        StringBuilder builder = new StringBuilder()
+                .append("{")
+                .append(MESSAGE_HEADER)
+                .append(UPPER_CAMEL.to(LOWER_CAMEL, targetTable))
                 .append(".")
-                .append(field.getName());
+                .append(field.getName())
+                .append("}");
         return builder.toString();
     }
 

@@ -11,7 +11,9 @@ import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class TableSchemaValidator implements ConstraintValidator<ValidTable, Object> {
+public class SchemaValidator implements ConstraintValidator<ValidTable, Object> {
+    private static final String NOT_EMPTY_MESSAGE = "{common.notEmpty}";
+
     @Override
     public void initialize(ValidTable validColumn) {
     }
@@ -30,7 +32,17 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
             try {
                 // set default value
                 obj = field.get(vo);
-                if ((obj == null || obj.toString().isBlank()) && !info.getNullable()) {
+                boolean isEmpty = (obj == null) || obj.toString().isEmpty();
+                if (!info.getNullable() && isEmpty) {
+                    if (!fieldInfo.isEmpty()) {
+                        context.buildConstraintViolationWithTemplate(NOT_EMPTY_MESSAGE)
+                                .addPropertyNode(field.getName())
+                                .addConstraintViolation()
+                                .disableDefaultConstraintViolation();
+                        result = false;
+                        continue;
+                    }
+
                     String defaultValue = fieldInfo.getDefaultValue();
                     if (Number.class.isAssignableFrom(dataType)) {
                         field.set(vo, NumberUtils.parseNumber(0 + defaultValue, dataType.asSubclass(Number.class)));
@@ -50,12 +62,12 @@ public class TableSchemaValidator implements ConstraintValidator<ValidTable, Obj
             if (obj != null) {
                 long min = fieldInfo.getMin();
                 Integer columnSize = info.getColumnSize();
+                int length = obj.toString().length();
 
                 if (obj instanceof String) {
-                    String temp = (String) obj;
-                    currentResult = (temp.length() <= columnSize) && (temp.length() >= min);
+                    currentResult = (length <= columnSize) && (length >= min);
                 } else if (obj instanceof Number) {
-                    currentResult = (String.valueOf(obj).length() <= columnSize) && (Long.parseLong(obj.toString()) >= min);
+                    currentResult = (length <= columnSize) && (Long.parseLong(obj.toString()) >= min);
                 }
             }
 

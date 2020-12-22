@@ -18,5 +18,6 @@ public class FieldInfo {
     private String defaultValue;
     private String targetTable;
     private ColumnInfo columnInfo;
+    private boolean empty;
     private long min;
 }

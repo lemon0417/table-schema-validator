@@ -1,6 +1,6 @@
 package com.example.customvalidator.data.bo;
 
-import com.example.customvalidator.constant.TableMapping;
+import com.example.customvalidator.data.constant.TableMapping;
 import com.example.customvalidator.validation.annotation.ValidColumn;
 import com.example.customvalidator.validation.annotation.ValidTable;
 import lombok.*;
@@ -11,11 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class KnowledgeBO {
-    private Long id;
-
-    private Long category;
-
-    @ValidColumn(min = 1)
+    @ValidColumn(empty = false)
     private String name;
 
     @ValidColumn(min = 5)

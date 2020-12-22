@@ -16,3 +16,6 @@ spring:
 #      settings:
 #        web-allow-others: true
 #        web-admin-password: 123456
+
+  messages:
+    basename: i18n/common

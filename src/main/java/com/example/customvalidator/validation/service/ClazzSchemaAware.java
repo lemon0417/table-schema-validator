@@ -7,6 +7,7 @@ import com.example.customvalidator.validation.vo.FieldInfo;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,57 +47,67 @@ public class ClazzSchemaAware {
         List<FieldInfo> list = new ArrayList<>();
 
         ValidTable validTable = clazz.getAnnotation(ValidTable.class);
-        String targetTable = validTable.name().replaceAll("`", "");
-        if (targetTable.isEmpty()) {
-            targetTable = UPPER_CAMEL.to(LOWER_UNDERSCORE, clazz.getSimpleName());
-        }
-
         for (Field field : clazz.getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers())) continue;
+
             field.setAccessible(true);
             ValidColumn annotation = field.getAnnotation(ValidColumn.class);
-            if (annotation != null && !annotation.targetTable().isEmpty()) {
-                targetTable = annotation.targetTable().replaceAll("`", "");
-            }
-            String columnName = getColumnName(field, annotation);
-            ColumnInfo columnInfo = DatabaseSchemaAware.getColumnInfo(targetTable, columnName);
+            String targetTable = getTargetTable(clazz, validTable, annotation);
+            String targetColumn = getTargetColumn(field, annotation);
+            ColumnInfo columnInfo = DatabaseSchemaAware.getColumnInfo(targetTable, targetColumn);
             if (columnInfo == null) continue;
 
-            long min = 0;
-            if (annotation == null) {
-                if (field.getType().isAssignableFrom(Integer.class)) {
-                    min = Integer.MIN_VALUE;
-                } else if (field.getType().isAssignableFrom(Long.class)) {
-                    min = Long.MIN_VALUE;
-                }
-            } else {
-                if (field.getType().isAssignableFrom(String.class)) {
-                    min = annotation.min();
-                } else if (field.getType().isAssignableFrom(Integer.class)) {
-                    min = (annotation.min() > Integer.MIN_VALUE) ? annotation.min() : Integer.MIN_VALUE;
-                } else if (field.getType().isAssignableFrom(Long.class)) {
-                    min = annotation.min();
-                }
-            }
             FieldInfo info = new FieldInfo(
                     field
-                    , columnName
+                    , targetColumn
                     , getMessage(targetTable, field, annotation)
                     , getDefaultValue(columnInfo, annotation)
                     , targetTable
                     , columnInfo
                     , (annotation == null || annotation.empty())
-                    , min
+                    , getMin(field, annotation)
             );
             list.add(info);
         }
         return list;
     }
 
-    private static String getColumnName(Field field, ValidColumn annotation) {
+    private static String getTargetTable(Class<?> clazz, ValidTable validTable, ValidColumn annotation) {
+        if (annotation != null && !annotation.targetTable().isEmpty()) {
+            return annotation.targetTable().replaceAll("`", "");
+        }
+        String targetTable = validTable.name().replaceAll("`", "");
+        if (targetTable.isEmpty()) {
+            return UPPER_CAMEL.to(LOWER_UNDERSCORE, clazz.getSimpleName());
+        }
+        return targetTable;
+    }
+
+    private static String getTargetColumn(Field field, ValidColumn annotation) {
         String columnName = (annotation != null && !annotation.targetColumn().isEmpty())
                 ? annotation.targetColumn()
                 : field.getName();
         return LOWER_CAMEL.to(LOWER_UNDERSCORE, columnName);
+    }
+
+    private static long getMin(Field field, ValidColumn annotation) {
+        long min = Long.MIN_VALUE;
+        if (annotation == null) {
+            if (Integer.class.isAssignableFrom(field.getType())) {
+                min = Integer.MIN_VALUE;
+            } else if (String.class.isAssignableFrom(field.getType())) {
+                min = 0;
+            }
+        } else {
+            if (Integer.class.isAssignableFrom(field.getType())) {
+                min = (annotation.min() > Integer.MIN_VALUE) ? annotation.min() : Integer.MIN_VALUE;
+            } else if (String.class.isAssignableFrom(field.getType())) {
+                min = annotation.min() > 0 ? annotation.min() : 0;
+            } else {
+                min = annotation.min();
+            }
+        }
+        return min;
     }
 
     private static String getMessage(String targetTable, Field field, ValidColumn annotation) {

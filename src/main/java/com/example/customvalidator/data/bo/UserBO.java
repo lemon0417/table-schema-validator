@@ -15,7 +15,7 @@ import javax.validation.constraints.Email;
 public class UserBO {
     private Integer id;
 
-    @ValidColumn(defaultValue = "name")
+    @ValidColumn(defaultValue = "name", min = 5)
     private String name;
 
     @ValidColumn(message = "xxxxxxx", defaultValue = "1", min = 1)

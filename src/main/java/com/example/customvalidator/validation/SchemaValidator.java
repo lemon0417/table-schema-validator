@@ -9,6 +9,7 @@ import org.springframework.util.NumberUtils;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class SchemaValidator implements ConstraintValidator<ValidTable, Object> {
@@ -46,6 +47,8 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
                     String defaultValue = fieldInfo.getDefaultValue();
                     if (Number.class.isAssignableFrom(dataType)) {
                         field.set(vo, NumberUtils.parseNumber(0 + defaultValue, dataType.asSubclass(Number.class)));
+                    } else if (Boolean.class.isAssignableFrom(dataType)) {
+                        field.set(vo, defaultValue.equals("1"));
                     } else {
                         field.set(vo, dataType.cast(defaultValue));
                     }
@@ -67,7 +70,12 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
                 if (obj instanceof String) {
                     currentResult = (length <= columnSize) && (length >= min);
                 } else if (obj instanceof Number) {
-                    currentResult = (length <= columnSize) && (Long.parseLong(obj.toString()) >= min);
+                    currentResult = length <= columnSize;
+                    if (obj instanceof BigDecimal) {
+                        currentResult &= ((BigDecimal) obj).compareTo(new BigDecimal(min)) >= 0;
+                    } else {
+                        currentResult &= Long.parseLong(obj.toString()) >= min;
+                    }
                 }
             }
 

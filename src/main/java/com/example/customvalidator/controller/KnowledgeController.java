@@ -52,6 +52,7 @@ public class KnowledgeController {
                         null
                         , category.getId()
                         , bo.getKnowledge().getName()
+                        , bo.getKnowledge().getOrder()
                         , bo.getKnowledge().getRule()
                 )
         );

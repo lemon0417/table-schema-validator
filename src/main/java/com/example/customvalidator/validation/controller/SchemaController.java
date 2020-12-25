@@ -23,13 +23,13 @@ public class SchemaController {
     private SchemaService service;
 
     @ApiOperation(value = "dbSchema")
-    @GetMapping("dbSchema")
+    @GetMapping("database")
     public Map<String, Map<String, ColumnInfo>> getDataBaseSchema() {
         return DatabaseSchemaAware.get();
     }
 
     @ApiOperation(value = "classSchema")
-    @GetMapping("classSchema")
+    @GetMapping("class")
     public ConcurrentMap<Class<?>, List<FieldInfo>> getClassSchema() {
         return ClazzSchemaAware.get();
     }

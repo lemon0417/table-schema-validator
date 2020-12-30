@@ -10,6 +10,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 
 public class SchemaValidator implements ConstraintValidator<ValidTable, Object> {
@@ -24,7 +25,6 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
         boolean result = true;
         List<FieldInfo> fieldInfos = ClazzSchemaAware.get(vo.getClass());
         for (FieldInfo fieldInfo : fieldInfos) {
-            boolean currentResult = true;
             Field field = fieldInfo.getField();
             ColumnInfo info = fieldInfo.getColumnInfo();
 
@@ -34,7 +34,7 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
                 // set default value
                 obj = field.get(vo);
                 boolean empty = (obj == null) || obj.toString().isEmpty();
-                if (!info.getNullable() && empty) {
+                if (!(obj instanceof Collection) && !info.getNullable() && empty) {
                     if (!fieldInfo.isEmpty()) {
                         context.buildConstraintViolationWithTemplate(NOT_EMPTY_MESSAGE)
                                 .addPropertyNode(field.getName())
@@ -62,20 +62,19 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
                         .addConstraintViolation();
             }
 
+            boolean currentResult = true;
             if (obj != null) {
                 long min = fieldInfo.getMin();
                 Integer columnSize = info.getColumnSize();
                 int length = obj.toString().length();
 
-                if (obj instanceof String) {
-                    currentResult = (length <= columnSize) && (length >= min);
-                } else if (obj instanceof Number) {
-                    currentResult = length <= columnSize;
-                    if (obj instanceof BigDecimal) {
-                        currentResult &= ((BigDecimal) obj).compareTo(new BigDecimal(min)) >= 0;
-                    } else {
-                        currentResult &= Long.parseLong(obj.toString()) >= min;
+                if (obj instanceof Collection) {
+                    for (Object element : (Collection<?>) obj) {
+                        currentResult = checkValue(element, min, columnSize, length);
+                        if (!currentResult) break;
                     }
+                } else {
+                    currentResult = checkValue(obj, min, columnSize, length);
                 }
             }
 
@@ -85,6 +84,21 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
                         .addPropertyNode(field.getName())
                         .addConstraintViolation()
                         .disableDefaultConstraintViolation();
+            }
+        }
+        return result;
+    }
+
+    private boolean checkValue(Object obj, long min, Integer columnSize, int length) {
+        boolean result = true;
+        if (obj instanceof String) {
+            result = (length <= columnSize) && (length >= min);
+        } else if (obj instanceof Number) {
+            result = length <= columnSize;
+            if (obj instanceof BigDecimal) {
+                result &= ((BigDecimal) obj).compareTo(new BigDecimal(min)) >= 0;
+            } else {
+                result &= Long.parseLong(obj.toString()) >= min;
             }
         }
         return result;

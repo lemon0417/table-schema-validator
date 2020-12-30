@@ -122,7 +122,8 @@ public class ClazzSchemaAware {
 
     private static String getMessage(
             String targetTable
-            , Field field, ValidColumn annotation
+            , Field field
+            , ValidColumn annotation
     ) {
         if (annotation != null && !annotation.message().isEmpty()) {
             return annotation.message();
@@ -130,7 +131,7 @@ public class ClazzSchemaAware {
         StringBuilder builder = new StringBuilder()
                 .append("{")
                 .append(MESSAGE_HEADER)
-                .append(UPPER_CAMEL.to(LOWER_CAMEL, targetTable))
+                .append(LOWER_UNDERSCORE.to(LOWER_CAMEL, targetTable))
                 .append(".")
                 .append(field.getName())
                 .append("}");

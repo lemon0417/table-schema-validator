@@ -13,10 +13,10 @@ import java.lang.reflect.Field;
 @AllArgsConstructor
 public class FieldInfo {
     private Field field;
-    private String columnName;
+    private String targetTable;
+    private String targetColumn;
     private String message;
     private String defaultValue;
-    private String targetTable;
     private ColumnInfo columnInfo;
     private boolean empty;
     private long min;

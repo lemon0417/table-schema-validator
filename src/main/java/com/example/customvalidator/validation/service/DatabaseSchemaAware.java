@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class DatabaseSchemaAware {
     private static final Map<String, Map<String, ColumnInfo>> CACHE = new HashMap<>();
     private static final String[] EXCLUDE_COLUMN_PREFIX = new String[]{
@@ -35,9 +34,7 @@ public class DatabaseSchemaAware {
         }
     }
 
-    private static void parse(
-            DataSource dataSource
-    ) throws MetaDataAccessException {
+    private static void parse(DataSource dataSource) throws MetaDataAccessException {
         JdbcUtils.extractDatabaseMetaData(dataSource,
                 databaseMetaData -> {
                     ResultSet rs = databaseMetaData.getColumns(null, null, "%", null);
@@ -62,13 +59,19 @@ public class DatabaseSchemaAware {
                 });
     }
 
-    public static ColumnInfo getColumnInfo(String tableName, String columnName) {
+    public static ColumnInfo getColumnInfo(
+            String tableName
+            , String columnName
+    ) {
         Map<String, ColumnInfo> table = CACHE.get(tableName);
         Assert.notNull(table, tableName + " is not a valid table.");
         return table.get(columnName);
     }
 
-    private static String trimToDefault(String str, boolean nullable) {
+    private static String trimToDefault(
+            String str
+            , boolean nullable
+    ) {
         final String DEFAULT_STRING = nullable ? null : "";
         if (str != null && str.trim().equalsIgnoreCase("null")) {
             return DEFAULT_STRING;

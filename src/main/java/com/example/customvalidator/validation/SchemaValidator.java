@@ -33,8 +33,8 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
             try {
                 // set default value
                 obj = field.get(vo);
-                boolean isEmpty = (obj == null) || obj.toString().isEmpty();
-                if (!info.getNullable() && isEmpty) {
+                boolean empty = (obj == null) || obj.toString().isEmpty();
+                if (!info.getNullable() && empty) {
                     if (!fieldInfo.isEmpty()) {
                         context.buildConstraintViolationWithTemplate(NOT_EMPTY_MESSAGE)
                                 .addPropertyNode(field.getName())

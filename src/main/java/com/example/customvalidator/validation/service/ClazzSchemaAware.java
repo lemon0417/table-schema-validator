@@ -43,7 +43,7 @@ public class ClazzSchemaAware {
         }
     }
 
-    public static List<FieldInfo> parse(Class<?> clazz) {
+    private static List<FieldInfo> parse(Class<?> clazz) {
         List<FieldInfo> list = new ArrayList<>();
 
         ValidTable validTable = clazz.getAnnotation(ValidTable.class);
@@ -59,10 +59,10 @@ public class ClazzSchemaAware {
 
             FieldInfo info = new FieldInfo(
                     field
+                    , targetTable
                     , targetColumn
                     , getMessage(targetTable, field, annotation)
                     , getDefaultValue(columnInfo, annotation)
-                    , targetTable
                     , columnInfo
                     , (annotation == null || annotation.empty())
                     , getMin(field, annotation)
@@ -72,7 +72,11 @@ public class ClazzSchemaAware {
         return list;
     }
 
-    private static String getTargetTable(Class<?> clazz, ValidTable validTable, ValidColumn annotation) {
+    private static String getTargetTable(
+            Class<?> clazz
+            , ValidTable validTable
+            , ValidColumn annotation
+    ) {
         if (annotation != null && !annotation.targetTable().isEmpty()) {
             return annotation.targetTable().replaceAll("`", "");
         }
@@ -83,14 +87,20 @@ public class ClazzSchemaAware {
         return targetTable;
     }
 
-    private static String getTargetColumn(Field field, ValidColumn annotation) {
+    private static String getTargetColumn(
+            Field field
+            , ValidColumn annotation
+    ) {
         String columnName = (annotation != null && !annotation.targetColumn().isEmpty())
                 ? annotation.targetColumn()
                 : field.getName();
         return LOWER_CAMEL.to(LOWER_UNDERSCORE, columnName);
     }
 
-    private static long getMin(Field field, ValidColumn annotation) {
+    private static long getMin(
+            Field field
+            , ValidColumn annotation
+    ) {
         long min = Long.MIN_VALUE;
         if (annotation == null) {
             if (Integer.class.isAssignableFrom(field.getType())) {
@@ -110,7 +120,10 @@ public class ClazzSchemaAware {
         return min;
     }
 
-    private static String getMessage(String targetTable, Field field, ValidColumn annotation) {
+    private static String getMessage(
+            String targetTable
+            , Field field, ValidColumn annotation
+    ) {
         if (annotation != null && !annotation.message().isEmpty()) {
             return annotation.message();
         }
@@ -124,7 +137,10 @@ public class ClazzSchemaAware {
         return builder.toString();
     }
 
-    private static String getDefaultValue(ColumnInfo columnInfo, ValidColumn annotation) {
+    private static String getDefaultValue(
+            ColumnInfo columnInfo
+            , ValidColumn annotation
+    ) {
         return StringUtils.hasLength(columnInfo.getColumnDef()) || (annotation == null)
                 ? columnInfo.getColumnDef()
                 : annotation.defaultValue();

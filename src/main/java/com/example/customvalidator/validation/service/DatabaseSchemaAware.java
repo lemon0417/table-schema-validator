@@ -14,9 +14,6 @@ import java.util.Map;
 
 public class DatabaseSchemaAware {
     private static final Map<String, Map<String, ColumnInfo>> CACHE = new HashMap<>();
-    private static final String[] EXCLUDE_COLUMN_PREFIX = new String[]{
-            "QRTZ_"
-    };
 
     public static Map<String, Map<String, ColumnInfo>> get() {
         return CACHE;
@@ -37,11 +34,8 @@ public class DatabaseSchemaAware {
     private static void parse(DataSource dataSource) throws MetaDataAccessException {
         JdbcUtils.extractDatabaseMetaData(dataSource,
                 databaseMetaData -> {
-                    ResultSet rs = databaseMetaData.getColumns(null, null, "%", null);
+                    ResultSet rs = databaseMetaData.getColumns(dataSource.getConnection().getCatalog(), null, "%", null);
                     while (rs.next()) {
-                        String columnName = rs.getString("COLUMN_NAME");
-                        if (checkExclude(columnName)) continue;
-
                         Class<?> dataType = JdbcTypeJavaClassMappings.INSTANCE.determineJavaClassForJdbcTypeCode(rs.getInt("DATA_TYPE"));
                         boolean nullable = rs.getInt("NULLABLE") == 1;
                         ColumnInfo info = new ColumnInfo(
@@ -51,6 +45,7 @@ public class DatabaseSchemaAware {
                                 , nullable
                         );
                         String tableName = rs.getString("TABLE_NAME");
+                        String columnName = rs.getString("COLUMN_NAME");
                         Map<String, ColumnInfo> tableInfo = CACHE.getOrDefault(tableName, new HashMap<>());
                         tableInfo.put(columnName, info);
                         CACHE.put(tableName, tableInfo);
@@ -77,13 +72,5 @@ public class DatabaseSchemaAware {
             return DEFAULT_STRING;
         }
         return str == null ? DEFAULT_STRING : str.trim();
-    }
-
-    private static boolean checkExclude(String columnName) {
-        for (String rule : EXCLUDE_COLUMN_PREFIX) {
-            if (columnName.startsWith(rule))
-                return true;
-        }
-        return false;
     }
 }

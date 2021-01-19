@@ -66,15 +66,14 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
             if (obj != null) {
                 long min = fieldInfo.getMin();
                 Integer columnSize = info.getColumnSize();
-                int length = obj.toString().length();
 
                 if (obj instanceof Collection) {
                     for (Object element : (Collection<?>) obj) {
-                        currentResult = checkValue(element, min, columnSize, length);
+                        currentResult = checkValue(element, min, columnSize);
                         if (!currentResult) break;
                     }
                 } else {
-                    currentResult = checkValue(obj, min, columnSize, length);
+                    currentResult = checkValue(obj, min, columnSize);
                 }
             }
 
@@ -89,8 +88,9 @@ public class SchemaValidator implements ConstraintValidator<ValidTable, Object> 
         return result;
     }
 
-    private boolean checkValue(Object obj, long min, Integer columnSize, int length) {
+    private boolean checkValue(Object obj, long min, Integer columnSize) {
         boolean result = true;
+        int length = obj.toString().length();
         if (obj instanceof String) {
             result = (length <= columnSize) && (length >= min);
         } else if (obj instanceof Number) {
